@@ -2,8 +2,6 @@
 
 .PHONY: all test clean deploy fund help install snapshot format anvil 
 
-PRIVATE_KEY_ANVIL_0 := 0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80
-
 all: clean remove install update build
 
 clean  :; forge clean
@@ -18,7 +16,7 @@ build:; forge build
 
 test :; forge test -vvv
 
-testFork-sepolia :; @forge test --fork-url $(RPC_URL_SEPOLIA) -vvv
+test-fork-sepolia :; @forge test --fork-url $(RPC_URL_SEPOLIA) -vvv
 
 coverage :; forge coverage -vvv
 
@@ -28,9 +26,17 @@ coverage-txt :; forge coverage --report debug > coverage.txt
 
 snapshot :; forge snapshot
 
-format :; forge fmt
+format-check :; forge fmt --check
 
 anvil :; anvil -m 'test test test test test test test test test test test junk' --steps-tracing --block-time 1
+
+check-etherscan-api:
+	@response_mainnet=$$(curl -s "https://api.etherscan.io/api?module=account&action=balance&address=$(PUBLIC_KEY_DEV)&tag=latest&apikey=$(ETHERSCAN_API_KEY)"); \
+	echo "Mainnet:" $$response_mainnet; \
+	response_sepolia=$$(curl -s "https://api-sepolia.etherscan.io/api?module=account&action=balance&address=$(PUBLIC_KEY_DEV)&tag=latest&apikey=$(ETHERSCAN_API_KEY)"); \
+	echo "Sepolia:" $$response_sepolia;
+
+PRIVATE_KEY_ANVIL_0 := 0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80
 
 NETWORK_ARGS_ANVIL := --rpc-url http://localhost:8545 --private-key $(PRIVATE_KEY_ANVIL_0) --broadcast
 
@@ -43,9 +49,3 @@ deploy:
 
 deploy-sepolia:
 	@$(DEPLOY_SCRIPT) $(NETWORK_ARGS_SEPOLIA)
-
-check-etherscan-api:
-	@response_mainnet=$$(curl -s "https://api.etherscan.io/api?module=account&action=balance&address=$(PUBLIC_KEY_DEV)&tag=latest&apikey=$(ETHERSCAN_API_KEY)"); \
-	echo "Mainnet:" $$response_mainnet; \
-	response_sepolia=$$(curl -s "https://api-sepolia.etherscan.io/api?module=account&action=balance&address=$(PUBLIC_KEY_DEV)&tag=latest&apikey=$(ETHERSCAN_API_KEY)"); \
-	echo "Sepolia:" $$response_sepolia;

@@ -36,11 +36,13 @@ NETWORK_ARGS_ANVIL := --rpc-url http://localhost:8545 --private-key $(PRIVATE_KE
 
 NETWORK_ARGS_SEPOLIA := --rpc-url $(RPC_URL_SEPOLIA) --account $(ACCOUNT_DEV) --sender $(PUBLIC_KEY_DEV) --broadcast --verify --etherscan-api-key $(ETHERSCAN_API_KEY) -vvvv
 
+DEPLOY_SCRIPT := forge script script/DeployOurToken.s.sol:DeployOurToken
+
 deploy:
-	@forge script script/DeployOurToken.s.sol:DeployOurToken $(NETWORK_ARGS_ANVIL)
+	@$(DEPLOY_SCRIPT) $(NETWORK_ARGS_ANVIL)
 
 deploy-sepolia:
-	@forge script script/DeployOurToken.s.sol:DeployOurToken $(NETWORK_ARGS_SEPOLIA)
+	@$(DEPLOY_SCRIPT) $(NETWORK_ARGS_SEPOLIA)
 
 check-etherscan-api:
 	@response_mainnet=$$(curl -s "https://api.etherscan.io/api?module=account&action=balance&address=$(PUBLIC_KEY_DEV)&tag=latest&apikey=$(ETHERSCAN_API_KEY)"); \
